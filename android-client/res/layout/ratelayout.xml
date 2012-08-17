@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RatingBar
+        android:id="@+id/ratingBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="138dp"
+            android:layout_height="50dp"
+            android:layout_margin="2dp"
+            android:background="#458df9"
+            android:textColor="#ffffff"
+            android:text="Rate him!" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="138dp"
+            android:layout_height="50dp"
+            android:layout_margin="2dp"
+            android:background="#d44937"
+            android:textColor="#ffffff"
+            android:text="Cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>
