@@ -77,17 +77,29 @@ def sim(va, vb, explain_rate=0.8):
 			if ua[i][0] == ub[j][0]:
 				x += 1
 	p = x*2.0/(len(ua)+len(ub))
+	# "return s" is cosine.
+	# "return p" is dominant method.
+	# "return p*s" is the combination approach.
 	return p*s
 
-def search(q_user, doc, rank, th, p):
+def search(q_user, doc, rank, th, p, beta=0.15):
+# Note that "beta" parameter is the used linear combine both rank and similarity.
+# The similarity can be changed in sim() function, see details there.
 	friend = []
 	qvector = doc[q_user]
 	for li in doc:
 		if li == qvector: continue
-		if sim(qvector[1:len(qvector)-1], li[1:len(li)-1]) >= th:
-			friend.append((int(li[0]), rank[int(li[0])], int(li[len(li)-1])))
+		similarity = sim(qvector[1:len(qvector)-1], li[1:len(li)-1])
+		#if sim(qvector[1:len(qvector)-1], li[1:len(li)-1]) >= th:
+		if similarity >= th:
+			friend.append((
+				int(li[0]), # line index id.
+				rank[int(li[0])], # rank value.
+				int(li[len(li)-1]), # true label
+				beta * similarity + (1 - beta) * rank[int(li[0])] * 100) # linear combination.
+			)
 
-	friend.sort(key=lambda o: (o[1], o[0], o[2]), reverse=True)
+	friend.sort(key=lambda o: (o[3], o[1], o[0], o[2]), reverse=True)
 	#print len(friend)
 	#for f in friend:
 	#	print f
@@ -97,28 +109,44 @@ if __name__ == '__main__':
 	#generate_engine(10, 10, 100, 'sim.csv')
 	sg = socialgraph.MyTopicGraph()
 	doc = load_data('sim.csv')
-	sg.build_graph(0.3, doc)
+	sg.build_graph(0.1, doc)
 	graph = sg.get_graph()
 	rk = pagerank.MyPageRank(graph)
 	rk.calculate()
 	rank = rk.get_rank()
+	print rank
+
+	# test the threshold.	
+	#w = csv.writer(open('metric_rs.csv', 'wb'), delimiter=',')
+	#for gp in range(10):
+	#	for user in random.sample(range(100), 10):
+	#		hr = [[], [], []]	
+	#		th = 0.05
+	#		while th < 1.:
+	#			for i in range(3): # 3 percentile.
+	#				f = search(gp*100+user, doc, rank, th, 100*(i+1), beta=0.2)
+	#				hit = 0
+	#				for u in f:
+	#					if u[2] == gp: hit += 1
+	#				hr[i].append(hit)
+	#			th += 0.05 
+	#		w.writerows(hr)
+	#		print "insert result successfully..."
 	
-	hr = [[], [], []]	
-	th = 0.05
-	while th < 1.:
-		for i in range(3):
-			f = search(2*100+23, doc, rank, th, 100*(i+1))
-			hit = 0
-			for u in f:
-				if u[2] == 2:
-					hit += 1
-			hr[i].append(hit)
-		print "insert result successfully..."
-		
-		th += 0.05 
-	
-	print hr
-	
+	# test the metric.
+	w = csv.writer(open('metric_sc.csv', 'wb'), delimiter=',')
+	for gp in range(10):
+		for user in range(100): # every user.
+			hr = [0]*10
+			for p in range(10):
+				f = search(gp*100+user, doc, rank, 0, 100*(p+1), beta=0.2)
+				hit = 0
+				for u in f:
+					if u[2] == gp:
+						hit += 1
+				hr[p] = hit
+			w.writerow(hr)
+
 	#hr = [0]*10
 	#for cl in range(10):
 	#	for i in range(10):

@@ -52,8 +52,8 @@ class MyTopicGraph:
 					if ua[i][0] == ub[j][0]:
 						x += 1
 		p = x*2.0/(len(ua)+len(ub))
-		#print p*s
-		return p*s
+		#return p*s
+		return s
 	
 	def build_graph(self, threshold, doc):
 		n = len(doc)
