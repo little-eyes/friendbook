@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	rk.calculate()
 	rank = rk.get_rank()
 	#print rank
-
+	# ========================================================
 	# test the threshold.	
 	#w = csv.writer(open('metric_rs.csv', 'wb'), delimiter=',')
 	#for gp in range(10):
@@ -133,6 +133,7 @@ if __name__ == '__main__':
 	#		w.writerows(hr)
 	#		print "insert result successfully..."
 	
+	# ========================================================
 	# test the metric.
 	w = csv.writer(open('metric_sc.csv', 'wb'), delimiter=',')
 	for gp in range(10):
@@ -146,15 +147,3 @@ if __name__ == '__main__':
 						hit += 1
 				hr[p] = hit
 			w.writerow(hr)
-
-	#hr = [0]*10
-	#for cl in range(10):
-	#	for i in range(10):
-	#		f = search(cl*100+23, doc, rank, 0, 100*(i+1))
-	#		hit = 0
-	#		for u in f:
-	#			if u[2] == cl:
-	#				hit += 1
-	#		hr[i] += hit
-	#print hr
-	
