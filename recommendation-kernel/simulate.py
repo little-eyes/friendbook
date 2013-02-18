@@ -4,7 +4,7 @@ import time
 import random
 from lib import socialgraph
 from lib import pagerank
-from lib import search
+#from lib import search
 
 
 def generate_life_vector(group_id, mean, sigma, nmembers, path):
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 	rk = pagerank.MyPageRank(graph)
 	rk.calculate()
 	rank = rk.get_rank()
-	print rank
+	#print rank
 
 	# test the threshold.	
 	#w = csv.writer(open('metric_rs.csv', 'wb'), delimiter=',')

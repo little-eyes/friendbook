@@ -1,6 +1,6 @@
-import topic
-import pythondb
-import corpus
+#import topic
+#import pythondb
+#import corpus
 import time
 
 
