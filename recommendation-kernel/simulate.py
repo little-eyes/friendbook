@@ -87,6 +87,8 @@ def search(q_user, doc, rank, th, p, beta=0.15):
 # The similarity can be changed in sim() function, see details there.
 	friend = []
 	qvector = doc[q_user]
+	mx = max(rank)
+	mi = min(rank)
 	for li in doc:
 		if li == qvector: continue
 		similarity = sim(qvector[1:len(qvector)-1], li[1:len(li)-1])
@@ -96,7 +98,7 @@ def search(q_user, doc, rank, th, p, beta=0.15):
 				int(li[0]), # line index id.
 				rank[int(li[0])], # rank value.
 				int(li[len(li)-1]), # true label
-				beta * similarity + (1 - beta) * rank[int(li[0])] * 100) # linear combination.
+				beta * similarity + (1 - beta) * (rank[int(li[0])]-mi)/(mx-mi)) # linear combination.
 			)
 
 	friend.sort(key=lambda o: (o[3], o[1], o[0], o[2]), reverse=True)
@@ -106,10 +108,10 @@ def search(q_user, doc, rank, th, p, beta=0.15):
 	return friend[0:p]
 
 if __name__ == '__main__':
-	#generate_engine(10, 10, 100, 'sim.csv')
+	#generate_engine(10, 10, 100, 'sim1.csv')
 	sg = socialgraph.MyTopicGraph()
-	doc = load_data('sim.csv')
-	sg.build_graph(0.1, doc)
+	doc = load_data('sim2.csv')
+	sg.build_graph(0.7, doc)
 	graph = sg.get_graph()
 	rk = pagerank.MyPageRank(graph)
 	rk.calculate()
@@ -124,7 +126,7 @@ if __name__ == '__main__':
 	#		th = 0.05
 	#		while th < 1.:
 	#			for i in range(3): # 3 percentile.
-	#				f = search(gp*100+user, doc, rank, th, 100*(i+1), beta=0.2)
+	#				f = search(gp*100+user, doc, rank, th, 100*(i+1), beta=0.8)
 	#				hit = 0
 	#				for u in f:
 	#					if u[2] == gp: hit += 1
@@ -135,15 +137,35 @@ if __name__ == '__main__':
 	
 	# ========================================================
 	# test the metric.
-	w = csv.writer(open('metric_sc.csv', 'wb'), delimiter=',')
-	for gp in range(10):
-		for user in range(100): # every user.
-			hr = [0]*10
-			for p in range(10):
-				f = search(gp*100+user, doc, rank, 0, 100*(p+1), beta=0.2)
-				hit = 0
-				for u in f:
-					if u[2] == gp:
-						hit += 1
-				hr[p] = hit
-			w.writerow(hr)
+	#w = csv.writer(open('metric_sc.csv', 'wb'), delimiter=',')
+	#for gp in range(10):
+	#	for user in range(100): # every user.
+	#		hr = [0]*10
+	#		for p in range(10):
+	#			f = search(gp*100+user, doc, rank, 0, 100*(p+1), beta=0.2)
+	#			hit = 0
+	#			for u in f:
+	#				if u[2] == gp:
+	#					hit += 1
+	#			hr[p] = hit
+	#		w.writerow(hr)
+
+	# ========================================================
+	# test the beta factor.
+	beta = 0.05
+	index = 0
+	while (beta < 1.0):
+		w = csv.writer(open('metric_beta_'+str(index)+'.csv', 'wb'), delimiter=',')
+		for gp in range(10):
+			for user in range(100): # every user.
+				hr = [0]*10
+				for p in range(10):
+					f = search(gp*100+user, doc, rank, 0.7, 100*(p+1), beta)
+					hit = 0
+					for u in f:
+						if u[2] == gp:
+							hit += 1
+					hr[p] = hit
+				w.writerow(hr)
+		beta += 0.1
+		index += 1

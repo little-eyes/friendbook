@@ -52,8 +52,8 @@ class MyTopicGraph:
 					if ua[i][0] == ub[j][0]:
 						x += 1
 		p = x*2.0/(len(ua)+len(ub))
-		#return p*s
-		return s
+		return p*s
+		#return s
 	
 	def build_graph(self, threshold, doc):
 		n = len(doc)
@@ -65,6 +65,9 @@ class MyTopicGraph:
 				strength = self.__similarity2(doc[i][1:len(doc[i])-1], doc[j][1:len(doc[j])-1]) 
 				if strength >= threshold:
 					self._graph[i].append((j, strength))
+		# for debug.
+		for key in self._graph.keys():
+			print key, len(self._graph[key])
 	
 	def get_graph(self):
 		return self._graph
