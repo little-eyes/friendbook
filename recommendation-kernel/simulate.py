@@ -82,7 +82,7 @@ def sim(va, vb, explain_rate=0.8):
 	# "return p*s" is the combination approach.
 	return p*s
 
-def search(q_user, doc, rank, th, p, beta=0.15):
+def search(q_user, doc, rank, beta=0.15):
 # Note that "beta" parameter is the used linear combine both rank and similarity.
 # The similarity can be changed in sim() function, see details there.
 	friend = []
@@ -93,19 +93,19 @@ def search(q_user, doc, rank, th, p, beta=0.15):
 		if li == qvector: continue
 		similarity = sim(qvector[1:len(qvector)-1], li[1:len(li)-1])
 		#if sim(qvector[1:len(qvector)-1], li[1:len(li)-1]) >= th:
-		if similarity >= th:
-			friend.append((
-				int(li[0]), # line index id.
-				rank[int(li[0])], # rank value.
-				int(li[len(li)-1]), # true label
-				beta * similarity + (1 - beta) * (rank[int(li[0])]-mi)/(mx-mi)) # linear combination.
-			)
+		#if similarity >= th:
+		friend.append((
+			int(li[0]), # line index id.
+			rank[int(li[0])], # rank value.
+			int(li[len(li)-1]), # true label
+			beta * similarity + (1 - beta) * (rank[int(li[0])]-mi)/(mx-mi)) # linear combination.
+		)
 
 	friend.sort(key=lambda o: (o[3], o[1], o[0], o[2]), reverse=True)
 	#print len(friend)
 	#for f in friend:
 	#	print f
-	return friend[0:p]
+	return friend
 
 if __name__ == '__main__':
 	#generate_engine(10, 10, 100, 'sim1.csv')
@@ -159,13 +159,14 @@ if __name__ == '__main__':
 		for gp in range(10):
 			for user in range(100): # every user.
 				hr = [0]*10
+				friends = search(gp*100+user, doc, rank, beta)
 				for p in range(10):
-					f = search(gp*100+user, doc, rank, 0.7, 100*(p+1), beta)
 					hit = 0
-					for u in f:
+					for u in friends[0:(p+1)*100]:
 						if u[2] == gp:
 							hit += 1
 					hr[p] = hit
 				w.writerow(hr)
+		print 'finish round %d' % index
 		beta += 0.1
 		index += 1
